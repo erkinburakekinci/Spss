@@ -1,0 +1,61 @@
+#calculating standart deviation, variance and all of the other needed parameters in order to determine the two variables. After that we can continue our standard
+#normal disturbition and getting the histogram and chart graphs. After that i found the extreme values in the datasets and draw their frequence tables.
+FREQUENCIES VARIABLES=Insan
+  /NTILES=4
+  /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SUM
+  /HISTOGRAM NORMAL
+  /ORDER=ANALYSIS.
+COMPUTE Ayrik_degerler=MEAN(Insan,Cinsiyet).
+EXECUTE.
+DESCRIPTIVES VARIABLES=Insan
+  /SAVE
+  /STATISTICS=MEAN STDDEV MIN MAX.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=Vatandaslik_ulkesi Insan MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE
+  /FITLINE TOTAL=NO.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: Vatandaslik_ulkesi=col(source(s), name("Vatandaslik_ulkesi"), unit.category())
+  DATA: Insan=col(source(s), name("Insan"))
+  GUIDE: axis(dim(1), label("Vatandaslik_ulkesi"))
+  GUIDE: axis(dim(2), label("Insan"))
+  GUIDE: text.title(label("Simple Scatter of Insan by Vatandaslik_ulkesi"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: point(position(Vatandaslik_ulkesi*Insan))
+END GPL.
+COMPUTE yeni_degisken=RV.NORMAL(3664.3600,2195.95477).
+EXECUTE.
+SORT CASES  BY Cinsiyet.
+SPLIT FILE SEPARATE BY Cinsiyet.
+FREQUENCIES VARIABLES=Insan
+  /NTILES=4
+  /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SUM
+  /HISTOGRAM NORMAL
+  /ORDER=ANALYSIS.
+USE ALL.
+FILTER BY Insan.
+EXECUTE.
+USE ALL.
+FILTER BY Cinsiyet.
+EXECUTE.
+FREQUENCIES VARIABLES=Insan
+  /NTILES=4
+  /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SUM
+  /HISTOGRAM NORMAL
+  /ORDER=ANALYSIS.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+USE ALL.
+FILTER BY Cinsiyet.
+EXECUTE.
+FREQUENCIES VARIABLES=yeni_degisken
+  /NTILES=4
+  /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SUM
+  /HISTOGRAM NORMAL
+  /ORDER=ANALYSIS.
+SAVE OUTFILE='C:\Users\erkin\Desktop\BONCUK BİCİ\ERKİN BURAK EKİNCİ 18050218 İST431.sav'
+  /COMPRESSED.
